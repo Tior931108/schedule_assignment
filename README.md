@@ -22,4 +22,5 @@
 
 
 ## 🧑‍🏫 ERD
-<img width="1218" height="572" alt="image" src="https://github.com/user-attachments/assets/21722369-c95d-4d6c-9ec7-bf7670c0a950" />
+<img width="1340" height="511" alt="image" src="https://github.com/user-attachments/assets/61b07c23-65c7-4b63-9627-b7843ae04cf8" />
+
