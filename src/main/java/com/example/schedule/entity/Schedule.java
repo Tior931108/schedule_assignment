@@ -23,7 +23,7 @@ public class Schedule extends BaseEntity {
 
     // 단방향 연관관계
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     // 생성자
