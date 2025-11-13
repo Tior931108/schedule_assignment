@@ -99,17 +99,22 @@ public class UserService {
 
         // 로그인 상태인지 확인 , 본인 정보만 수정 가능
 
-        // 기존비밀번호 체크
-        if (!user.isPasswordMatch(updateUserRequest.getPassword())) {
-            throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
+        // 현재 비밀번호 확인
+        if (!user.isPasswordMatch(updateUserRequest.getCurrentPassword())) {
+            throw new IllegalStateException("현재 비밀번호가 일치하지 않습니다.");
         }
 
-        // 기존비밀번호와 동일하면 수정 패스
+        // 새 비밀번호가 입력된 경우
+        if (updateUserRequest.getNewPassword() != null && !updateUserRequest.getNewPassword().isEmpty()) {
+            // 기존 비밀번호와 동일한지 체크
+            if (user.isPasswordMatch(updateUserRequest.getNewPassword())) {
+                throw new IllegalStateException("기존 비밀번호와 다른 비밀번호를 입력해주세요.");
+            }
+            // 작성일, 수정일은 Auditing에 의해 자동 변경
+            user.update(updateUserRequest.getNewPassword(), updateUserRequest.getName());
+        }
 
-        // 새로운 비밀번호 입력 확인
-
-        // 비밀번호 , 작성일은 Auditing에 의해 자동 변경
-        user.update(updateUserRequest.getPassword(), updateUserRequest.getName());
+        // 수정일자 명시적 flush 선언
         userRepository.flush();
 
         // 응답 DTO
@@ -130,6 +135,8 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 유저입니다.")
         );
+
+        // 로그인 상태인지 확인, 본인 정보만 삭제 가능
 
         userRepository.delete(user);
 

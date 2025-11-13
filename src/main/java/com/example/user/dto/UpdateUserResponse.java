@@ -13,14 +13,14 @@ public class UpdateUserResponse {
     private final String name;
     private final UserRole role;
     private final LocalDateTime createdAt;
-    private final LocalDateTime updatedAt;
+    private final LocalDateTime modifiedAt;
 
-    public UpdateUserResponse(Long id, String email, String name, UserRole role, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public UpdateUserResponse(Long id, String email, String name, UserRole role, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.email = email;
         this.name = name;
         this.role = role;
         this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.modifiedAt = modifiedAt;
     }
 }
