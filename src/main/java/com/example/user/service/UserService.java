@@ -115,7 +115,7 @@ public class UserService {
                 throw new IllegalStateException("기존 비밀번호와 다른 비밀번호를 입력해주세요.");
             }
             // 작성일, 수정일은 Auditing에 의해 자동 변경
-            user.update(updateUserRequest.getNewPassword(), updateUserRequest.getName());
+            user.update(updateUserRequest.getNewPassword(), updateUserRequest.getNickname());
         }
 
         // 수정일자 명시적 flush 선언

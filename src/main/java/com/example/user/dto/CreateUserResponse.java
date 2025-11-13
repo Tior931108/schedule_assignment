@@ -10,16 +10,16 @@ public class CreateUserResponse {
 
     private final Long id;
     private final String email;
-    private final String name;
+    private final String nickname;
     private final UserRole role;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
 
-    public CreateUserResponse(Long id, String email, String name, UserRole role, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    public CreateUserResponse(Long id, String email, String nickname, UserRole role, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.email = email;
-        this.name = name;
+        this.nickname = nickname;
         this.role = role;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
