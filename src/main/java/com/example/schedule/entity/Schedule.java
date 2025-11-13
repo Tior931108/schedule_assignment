@@ -27,9 +27,15 @@ public class Schedule extends BaseEntity {
     private User user;
 
     // 생성자
-    public Schedule(String content, String title, User user) {
-        this.content = content;
+    public Schedule(String title, String content, User user) {
         this.title = title;
+        this.content = content;
         this.user = user;
+    }
+
+    // 제목 및 내용 수정 메소드
+    public void update(String newTitle, String newContent) {
+        this.title = newTitle;
+        this.content = newContent;
     }
 }
