@@ -23,12 +23,16 @@ public class UserService {
         if (userRepository.existsByEmail(createUserRequest.getEmail())) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
+        // 닉네임 중복 체크
+        if(userRepository.existsByNickname(createUserRequest.getNickname())) {
+            throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+        }
 
         // 요청으로 들어온 속성값
         User user = new User(
                 createUserRequest.getEmail(),
                 createUserRequest.getPassword(),
-                createUserRequest.getName()
+                createUserRequest.getNickname()
         );
 
         // repository 저장
@@ -38,7 +42,7 @@ public class UserService {
         return new CreateUserResponse(
                 savedUser.getId(),
                 savedUser.getEmail(),
-                savedUser.getName(),
+                savedUser.getNickname(),
                 savedUser.getRole(),
                 savedUser.getCreatedAt(),
                 savedUser.getModifiedAt()
@@ -58,7 +62,7 @@ public class UserService {
         return new ReadOneUserResponse(
                 user.getId(),
                 user.getEmail(),
-                user.getName(),
+                user.getNickname(),
                 user.getRole(),
                 user.getCreatedAt(),
                 user.getModifiedAt()
@@ -79,7 +83,7 @@ public class UserService {
             ReadAllUsersResponse dto = new ReadAllUsersResponse(
                     user.getId(),
                     user.getEmail(),
-                    user.getName(),
+                    user.getNickname(),
                     user.getRole(),
                     user.getCreatedAt(),
                     user.getModifiedAt()
@@ -121,7 +125,7 @@ public class UserService {
         return new UpdateUserResponse(
                 user.getId(),
                 user.getEmail(),
-                user.getName(),
+                user.getNickname(),
                 user.getRole(),
                 user.getCreatedAt(),
                 user.getModifiedAt()

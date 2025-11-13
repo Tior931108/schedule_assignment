@@ -33,7 +33,7 @@ class UserRepositoryTest {
          User user = User.builder()
                  .email("aaa@example.com")
                  .password("1234")
-                 .name("홍길동")
+                 .nickname("홍길동")
                  .role(USER)
                  .build();
 
@@ -53,6 +53,20 @@ class UserRepositoryTest {
 
         // when
         boolean exists = userRepository.existsByEmail("aaa@example.com");
+
+        // then
+        assertThat(exists).isTrue();
+    }
+
+    @Test
+    @DisplayName("닉네임이 존재하는지 확인한다.")
+    void existsByNickname() {
+        // given
+        User users = new User("aaa@example.com", "1234", "홍길동");
+        userRepository.save(users);
+
+        // when
+        boolean exists = userRepository.existsByNickname("홍길동");
 
         // then
         assertThat(exists).isTrue();

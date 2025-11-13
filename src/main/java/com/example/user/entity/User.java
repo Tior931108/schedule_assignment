@@ -22,26 +22,26 @@ public class User extends BaseEntity {
     private String email;
     @Column(length = 30, nullable = false)
     private String password;
-    @Column(length = 30, nullable = false)
-    private String name;
+    @Column(length = 30, unique = true, nullable = false)
+    private String nickname;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 10, nullable = false, columnDefinition = "VARCHAR(10) DEFAULT 'USER'")
     private UserRole role; // 유저 권한: USER, MANAGER, ADMIN
 
     // 비밀번호 포함한 생성자
-    public User(String email, String password, String name) {
+    public User(String email, String password, String nickname) {
         this.email = email;
         this.password = password;
-        this.name = name;
+        this.nickname = nickname;
         this.role = UserRole.USER; // 기본 권한 일반유저(USER)
     }
 
 
     // 유저 정보 수정
-    public void update(String newPassword, String name) {
+    public void update(String newPassword, String nickname) {
         this.password = newPassword;
-        this.name = name;
+        this.nickname = nickname;
     }
 
     // 최고관리자 권한 부여 메서드
