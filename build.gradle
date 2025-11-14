@@ -34,6 +34,7 @@ dependencies {
     testImplementation 'com.h2database:h2' // 테스트 시에만 사용
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'at.favre.lib:bcrypt:0.10.2' // 비밀번호 암호화 추가
 }
 
 tasks.named('test') {

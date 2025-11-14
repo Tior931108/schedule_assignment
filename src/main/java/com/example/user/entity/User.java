@@ -1,5 +1,6 @@
 package com.example.user.entity;
 
+import com.example.common.config.PasswordEncoder;
 import com.example.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,7 +21,7 @@ public class User extends BaseEntity {
     private Long id;
     @Column(length = 30, unique = true, nullable = false)
     private String email;
-    @Column(length = 30, nullable = false)
+    @Column(length = 100, nullable = false)
     private String password;
     @Column(length = 30, unique = true, nullable = false)
     private String nickname;
@@ -38,32 +39,28 @@ public class User extends BaseEntity {
     }
 
 
-    // 유저 정보 수정
-    public void update(String newPassword, String nickname) {
+    // 유저 비밀번호 변경
+    public void updatePassword(String newPassword) {
         this.password = newPassword;
+    }
+
+    // 유저 닉네임 변경
+    public void updateNickname(String nickname) {
         this.nickname = nickname;
     }
 
-    // 최고관리자 권한 부여 메서드
-    public void updateToAdmin() {
-        this.role = UserRole.ADMIN;
+
+    // 권한 변경 메소드
+    public void updateRole(UserRole newRole) {
+        this.role = newRole;
     }
 
-    // 중간관리자 권한 부여 메서드
-    public void updateToManager() {
-        this.role = UserRole.MANAGER;
-    }
-
-    // 일반 회원으로 권한 변경
-    public void updateToUser() {
-        this.role = UserRole.USER;
-    }
-
-    // 비밀번호 체크
-    public boolean isPasswordMatch(String password) {
-        if (this.password == null || password == null) {
+    // 비밀번호 체크 - 보안강화
+    public boolean isPasswordMatch(String rawPassword, PasswordEncoder passwordEncoder) {
+        if (this.password == null || rawPassword == null) {
             return false;
         }
-        return this.password.equals(password);
+        // 입력한 비밀번호와 암호롸로 저장된 비밀번호가 동일한지 확인
+        return passwordEncoder.matches(rawPassword, this.password);
     }
 }
