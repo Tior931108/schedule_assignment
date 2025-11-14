@@ -1,7 +1,9 @@
 package com.example.user.service;
 
+import com.example.common.config.PasswordEncoder;
 import com.example.user.dto.*;
 import com.example.user.entity.User;
+import com.example.user.entity.UserRole;
 import com.example.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,10 +17,27 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    // 로그인 체크
+    @Transactional
+    public User login(String email, String rawPassword) {
+        // 이메일 확인
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("이메일이 일치하지 않습니다."));
+
+        // 비밀번호 확인
+        if (!user.isPasswordMatch(rawPassword, passwordEncoder)) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        return user;
+    }
+
 
     // 유저 생성 - 회원가입, 로그인 인증X
     @Transactional
-    public CreateUserResponse save(CreateUserRequest createUserRequest) {
+    public CreateUserResponse register(CreateUserRequest createUserRequest) {
         // 이메일 중복 체크
         if (userRepository.existsByEmail(createUserRequest.getEmail())) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
@@ -28,10 +47,13 @@ public class UserService {
             throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
         }
 
+        // 비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(createUserRequest.getPassword());
+
         // 요청으로 들어온 속성값
         User user = new User(
                 createUserRequest.getEmail(),
-                createUserRequest.getPassword(),
+                encodedPassword,
                 createUserRequest.getNickname()
         );
 
@@ -93,7 +115,7 @@ public class UserService {
         return dtos;
     }
 
-    // 유저 수정
+    // 유저 정보 수정
     @Transactional
     public UpdateUserResponse updateUser(Long userId, UpdateUserRequest updateUserRequest) {
         // 가입된 유저인지 확인
@@ -104,19 +126,24 @@ public class UserService {
         // 로그인 상태인지 확인 , 본인 정보만 수정 가능
 
         // 현재 비밀번호 확인
-        if (!user.isPasswordMatch(updateUserRequest.getCurrentPassword())) {
+        if (!user.isPasswordMatch(updateUserRequest.getCurrentPassword(), passwordEncoder)) {
             throw new IllegalStateException("현재 비밀번호가 일치하지 않습니다.");
         }
 
         // 새 비밀번호가 입력된 경우
         if (updateUserRequest.getNewPassword() != null && !updateUserRequest.getNewPassword().isEmpty()) {
             // 기존 비밀번호와 동일한지 체크
-            if (user.isPasswordMatch(updateUserRequest.getNewPassword())) {
+            if (user.isPasswordMatch(updateUserRequest.getNewPassword(), passwordEncoder)) {
                 throw new IllegalStateException("기존 비밀번호와 다른 비밀번호를 입력해주세요.");
             }
-            // 작성일, 수정일은 Auditing에 의해 자동 변경
-            user.update(updateUserRequest.getNewPassword(), updateUserRequest.getNickname());
+
+            String encodedPassword = passwordEncoder.encode(updateUserRequest.getNewPassword());
+            // 비밀번호 변경
+            user.updatePassword(encodedPassword);
         }
+
+        // 닉네임 변경
+        user.updateNickname(updateUserRequest.getNickname());
 
         // 수정일자 명시적 flush 선언
         userRepository.flush();
@@ -146,4 +173,38 @@ public class UserService {
 
     }
 
+    // 유저 권한 수정
+    @Transactional
+    public UpdateUserRoleResponse updateUserRole(Long userId, UpdateUserRoleRequest updateUserRoleRequest) {
+        // 가입된 유저인지 확인
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new IllegalArgumentException("존재하지 않는 유저입니다.")
+        );
+
+        // 최고 관리자만 수정 가능
+
+        // 입력된 권한이 USER, MANAGER, ADMIN중에 있는지 확인
+        UserRole userRole = updateUserRoleRequest.getRole();
+        // JSON RequestBody에 권한명을 클라이언트로부터 잘못 입력 받으면 Enum은 null 처리를 함.
+        // String 타입 null은 NullPointerException이 발생하지만, Enum 타입 null처리로 원하는 예외처리 구현 가능!
+        if(userRole == null) {
+            throw new IllegalArgumentException("존재하지 않는 권한입니다.");
+        }
+
+        // Enum 권한명이 맞다면 변경
+        user.updateRole(updateUserRoleRequest.getRole());
+
+
+        // 수정일자 명시적 flush 선언
+        userRepository.flush();
+
+        return new UpdateUserRoleResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getNickname(),
+                user.getRole(),
+                user.getCreatedAt(),
+                user.getModifiedAt()
+        );
+    }
 }

@@ -20,7 +20,7 @@ public class UserController {
     @PostMapping("/auth/register")
     public ResponseEntity<CreateUserResponse> createUser (
             @RequestBody CreateUserRequest createUserRequest) {
-        CreateUserResponse result = userService.save(createUserRequest);
+        CreateUserResponse result = userService.register(createUserRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
@@ -42,12 +42,21 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(results);
     }
 
-    // 유저 수정
+    // 유저 정보 수정
     @PatchMapping("/users/{userId}")
     public ResponseEntity<UpdateUserResponse> updateUser (
             @PathVariable Long userId,
             @RequestBody UpdateUserRequest updateUserRequest) {
         UpdateUserResponse result = userService.updateUser(userId, updateUserRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    // 유저 권한 수정
+    @PatchMapping("/users/{userId}/role")
+    public ResponseEntity<UpdateUserRoleResponse> updateUserRole (
+            @PathVariable Long userId,
+            @RequestBody UpdateUserRoleRequest updateUserRoleRequest) {
+        UpdateUserRoleResponse result = userService.updateUserRole(userId, updateUserRoleRequest);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
