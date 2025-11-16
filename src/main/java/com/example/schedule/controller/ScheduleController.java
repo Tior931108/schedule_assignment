@@ -1,10 +1,13 @@
 package com.example.schedule.controller;
 
+import com.example.common.annotation.LoginUser;
 import com.example.common.annotation.RoleRequired;
 import com.example.schedule.dto.*;
 import com.example.schedule.entity.Schedule;
 import com.example.schedule.service.ScheduleService;
+import com.example.user.dto.SessionUser;
 import com.example.user.entity.UserRole;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,8 +32,9 @@ public class ScheduleController {
     // 일정 단건 조회
     @GetMapping("/schedules/{scheduleId}")
     public ResponseEntity<ReadOneScheduleResponse> readOneSchedule(
-            @PathVariable("scheduleId") Long scheduleId) {
-        ReadOneScheduleResponse result = scheduleService.readOneSchedule(scheduleId);
+            @PathVariable("scheduleId") Long scheduleId,
+            @LoginUser SessionUser sessionUser) {
+        ReadOneScheduleResponse result = scheduleService.readOneSchedule(scheduleId, sessionUser);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -51,16 +55,18 @@ public class ScheduleController {
     @PatchMapping("/schedules/{scheduleId}")
     public ResponseEntity<UpdateScheduleResponse> updateSchedule(
             @PathVariable("scheduleId") Long scheduleId,
-            @RequestBody UpdateScheduleRequest updateScheduleRequest) {
-        UpdateScheduleResponse result = scheduleService.updateSchedule(scheduleId, updateScheduleRequest);
+            @RequestBody UpdateScheduleRequest updateScheduleRequest,
+            @LoginUser SessionUser sessionUser) {
+        UpdateScheduleResponse result = scheduleService.updateSchedule(scheduleId, updateScheduleRequest, sessionUser);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     // 일정 삭제
     @DeleteMapping("/schedules/{scheduleId}")
     public ResponseEntity<Void> deleteSchedule(
-            @PathVariable("scheduleId") Long scheduleId) {
-        scheduleService.deleteSchedule(scheduleId);
+            @PathVariable("scheduleId") Long scheduleId,
+            @LoginUser SessionUser sessionUser) {
+        scheduleService.deleteSchedule(scheduleId, sessionUser);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

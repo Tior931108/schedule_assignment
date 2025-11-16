@@ -1,6 +1,7 @@
 package com.example.user.controller;
 
 
+import com.example.common.annotation.LoginUser;
 import com.example.common.annotation.RoleRequired;
 import com.example.user.dto.*;
 import com.example.user.entity.UserRole;
@@ -29,8 +30,9 @@ public class UserController {
     // 유저 단건 조회
     @GetMapping("/users/{userId}")
     public ResponseEntity<ReadOneUserResponse> ReadOneUser (
-            @PathVariable Long userId){
-        ReadOneUserResponse result = userService.readOneUser(userId);
+            @PathVariable Long userId,
+            @LoginUser SessionUser sessionUser) {
+        ReadOneUserResponse result = userService.readOneUser(userId, sessionUser);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -50,8 +52,9 @@ public class UserController {
     @PatchMapping("/users/{userId}")
     public ResponseEntity<UpdateUserResponse> updateUser (
             @PathVariable Long userId,
-            @RequestBody UpdateUserRequest updateUserRequest) {
-        UpdateUserResponse result = userService.updateUser(userId, updateUserRequest);
+            @RequestBody UpdateUserRequest updateUserRequest,
+            @LoginUser SessionUser sessionUser) {
+        UpdateUserResponse result = userService.updateUser(userId, updateUserRequest, sessionUser);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -69,8 +72,9 @@ public class UserController {
     // 유저 삭제 (회원 탈퇴)
     @DeleteMapping("/users/{userId}")
     public ResponseEntity<Void> deleteUser (
-            @PathVariable Long userId) {
-        userService.deleteUser(userId);
+            @PathVariable Long userId,
+            @LoginUser SessionUser sessionUser) {
+        userService.deleteUser(userId, sessionUser);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

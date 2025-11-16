@@ -17,6 +17,7 @@ public enum ErrorMessage {
     // 401 Unauthorized : 로그인 필요(인증)
     NEED_TO_LOGIN(HttpStatus.UNAUTHORIZED,"로그인이 필요합니다."),
     // 403 Forbidden : 권한 거부(인가)
+    ONLY_OWNER_ACCESS(HttpStatus.FORBIDDEN, "본인 정보만 접근 가능합니다."),
     REJECT_AUTHORIZED(HttpStatus.FORBIDDEN,"해당 기능을 사용할 권한이 없습니다. 관리자에게 문의해주세요"),
     // 404 Not Found : 리소스가 없음
     NOT_FOUND_USER(HttpStatus.NOT_FOUND,"존재하지 않는 유저입니다."),

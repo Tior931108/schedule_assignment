@@ -2,6 +2,7 @@ package com.example.user.service;
 
 import com.example.common.config.PasswordEncoder;
 import com.example.common.exception.*;
+import com.example.common.util.AccessValidator;
 import com.example.user.dto.*;
 import com.example.user.entity.User;
 import com.example.user.entity.UserRole;
@@ -19,6 +20,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AccessValidator accessValidator;
 
     // 로그인 체크
     @Transactional
@@ -74,13 +76,19 @@ public class UserService {
 
     // 유저 단건 조회
     @Transactional(readOnly = true)
-    public ReadOneUserResponse readOneUser(Long userId) {
+    public ReadOneUserResponse readOneUser(Long userId, SessionUser sessionUser) {
         // 가입된 유저인지 확인
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundUserException(ErrorMessage.NOT_FOUND_USER)
         );
 
-        // 로그인 상태 확인 , 본인것만 조회 가능
+        // 본인것만 조회 가능 + 관리자
+        accessValidator.validateUserAccess(
+                userId,
+                sessionUser.getUserId(),
+                sessionUser.getRole(),
+                "조회"
+        );
 
         return new ReadOneUserResponse(
                 user.getId(),
@@ -118,13 +126,19 @@ public class UserService {
 
     // 유저 정보 수정
     @Transactional
-    public UpdateUserResponse updateUser(Long userId, UpdateUserRequest updateUserRequest) {
+    public UpdateUserResponse updateUser(Long userId, UpdateUserRequest updateUserRequest, SessionUser sessionUser) {
         // 가입된 유저인지 확인
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundUserException(ErrorMessage.NOT_FOUND_USER)
         );
 
-        // 로그인 상태인지 확인 , 본인 정보만 수정 가능
+        // 본인 정보만 수정 가능 + 관리자
+        accessValidator.validateUserAccess(
+                userId,
+                sessionUser.getUserId(),
+                sessionUser.getRole(),
+                "수정"
+        );
 
         // 현재 비밀번호 확인
         if (!user.isPasswordMatch(updateUserRequest.getCurrentPassword(), passwordEncoder)) {
@@ -162,13 +176,19 @@ public class UserService {
 
     // 유저 삭제
     @Transactional
-    public void deleteUser(Long userId) {
+    public void deleteUser(Long userId, SessionUser sessionUser) {
         // 가입된 유저인지 확인
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundUserException(ErrorMessage.NOT_FOUND_USER)
         );
 
-        // 로그인 상태인지 확인, 본인 정보만 삭제 가능
+        // 본인 정보만 삭제 가능 + 관리자
+        accessValidator.validateUserAccess(
+                userId,
+                sessionUser.getUserId(),
+                sessionUser.getRole(),
+                "삭제"
+        );
 
         userRepository.delete(user);
 
@@ -181,8 +201,6 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundUserException(ErrorMessage.NOT_FOUND_USER)
         );
-
-        // 최고 관리자만 수정 가능
 
         // 입력된 권한이 USER, MANAGER, ADMIN중에 있는지 확인
         UserRole userRole = updateUserRoleRequest.getRole();
