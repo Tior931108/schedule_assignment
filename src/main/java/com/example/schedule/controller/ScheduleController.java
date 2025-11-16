@@ -1,8 +1,10 @@
 package com.example.schedule.controller;
 
+import com.example.common.annotation.RoleRequired;
 import com.example.schedule.dto.*;
 import com.example.schedule.entity.Schedule;
 import com.example.schedule.service.ScheduleService;
+import com.example.user.entity.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +35,8 @@ public class ScheduleController {
     }
 
     // 일정 전체조회
+    // 중간관리자, 최고관리자만 조회 가능
+    @RoleRequired({UserRole.MANAGER, UserRole.ADMIN})
     @GetMapping("/schedules")
     public ResponseEntity<List<ReadAllScheduleResponse>> readAllSchedule(
             @RequestParam(required = false) String nickname,

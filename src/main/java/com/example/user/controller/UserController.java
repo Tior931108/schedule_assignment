@@ -1,7 +1,9 @@
 package com.example.user.controller;
 
 
+import com.example.common.annotation.RoleRequired;
 import com.example.user.dto.*;
+import com.example.user.entity.UserRole;
 import com.example.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -33,6 +35,8 @@ public class UserController {
     }
 
     // 유저 전체 조회
+    // 중간관리자 이상만 유저 전체 조회 가능
+    @RoleRequired({UserRole.MANAGER, UserRole.ADMIN})
     @GetMapping("/users")
     public ResponseEntity<List<ReadAllUsersResponse>> ReadAllUsers (
             // 페이징 처리를 위한 RequestParam (page : 페이지 번호, size : 한 페이지당 최대로 보이는 유저 수)
@@ -52,6 +56,8 @@ public class UserController {
     }
 
     // 유저 권한 수정
+    // 최고 관리자만 유저 권한 수정 가능
+    @RoleRequired({UserRole.ADMIN})
     @PatchMapping("/users/{userId}/role")
     public ResponseEntity<UpdateUserRoleResponse> updateUserRole (
             @PathVariable Long userId,
