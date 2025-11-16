@@ -1,6 +1,7 @@
 package com.example.user.service;
 
 import com.example.common.config.PasswordEncoder;
+import com.example.common.exception.*;
 import com.example.user.dto.*;
 import com.example.user.entity.User;
 import com.example.user.entity.UserRole;
@@ -24,11 +25,11 @@ public class UserService {
     public User login(String email, String rawPassword) {
         // 이메일 확인
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("이메일이 일치하지 않습니다."));
+                .orElseThrow(() -> new NotMatchEmailException(ErrorMessage.NOT_MATCH_EMAIL));
 
         // 비밀번호 확인
         if (!user.isPasswordMatch(rawPassword, passwordEncoder)) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new NotMatchPasswordException(ErrorMessage.NOT_MATCH_PASSWORD);
         }
 
         return user;
@@ -40,11 +41,11 @@ public class UserService {
     public CreateUserResponse register(CreateUserRequest createUserRequest) {
         // 이메일 중복 체크
         if (userRepository.existsByEmail(createUserRequest.getEmail())) {
-            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+            throw new ExistEmailException(ErrorMessage.EXIST_EMAIL);
         }
         // 닉네임 중복 체크
         if(userRepository.existsByNickname(createUserRequest.getNickname())) {
-            throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+            throw new ExistNicknameException(ErrorMessage.EXIST_NICKNAME);
         }
 
         // 비밀번호 암호화
@@ -76,7 +77,7 @@ public class UserService {
     public ReadOneUserResponse readOneUser(Long userId) {
         // 가입된 유저인지 확인
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 유저입니다.")
+                () -> new NotFoundUserException(ErrorMessage.NOT_FOUND_USER)
         );
 
         // 로그인 상태 확인 , 본인것만 조회 가능
@@ -120,21 +121,21 @@ public class UserService {
     public UpdateUserResponse updateUser(Long userId, UpdateUserRequest updateUserRequest) {
         // 가입된 유저인지 확인
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 유저입니다.")
+                () -> new NotFoundUserException(ErrorMessage.NOT_FOUND_USER)
         );
 
         // 로그인 상태인지 확인 , 본인 정보만 수정 가능
 
         // 현재 비밀번호 확인
         if (!user.isPasswordMatch(updateUserRequest.getCurrentPassword(), passwordEncoder)) {
-            throw new IllegalStateException("현재 비밀번호가 일치하지 않습니다.");
+            throw new NotMatchPasswordException(ErrorMessage.NOT_MATCH_PASSWORD);
         }
 
         // 새 비밀번호가 입력된 경우
         if (updateUserRequest.getNewPassword() != null && !updateUserRequest.getNewPassword().isEmpty()) {
             // 기존 비밀번호와 동일한지 체크
             if (user.isPasswordMatch(updateUserRequest.getNewPassword(), passwordEncoder)) {
-                throw new IllegalStateException("기존 비밀번호와 다른 비밀번호를 입력해주세요.");
+                throw new ExistAndNewPasswordException(ErrorMessage.EXIST_AND_NEW_PASSWORD);
             }
 
             String encodedPassword = passwordEncoder.encode(updateUserRequest.getNewPassword());
@@ -164,7 +165,7 @@ public class UserService {
     public void deleteUser(Long userId) {
         // 가입된 유저인지 확인
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 유저입니다.")
+                () -> new NotFoundUserException(ErrorMessage.NOT_FOUND_USER)
         );
 
         // 로그인 상태인지 확인, 본인 정보만 삭제 가능
@@ -178,7 +179,7 @@ public class UserService {
     public UpdateUserRoleResponse updateUserRole(Long userId, UpdateUserRoleRequest updateUserRoleRequest) {
         // 가입된 유저인지 확인
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 유저입니다.")
+                () -> new NotFoundUserException(ErrorMessage.NOT_FOUND_USER)
         );
 
         // 최고 관리자만 수정 가능
@@ -188,7 +189,7 @@ public class UserService {
         // JSON RequestBody에 권한명을 클라이언트로부터 잘못 입력 받으면 Enum은 null 처리를 함.
         // String 타입 null은 NullPointerException이 발생하지만, Enum 타입 null처리로 원하는 예외처리 구현 가능!
         if(userRole == null) {
-            throw new IllegalArgumentException("존재하지 않는 권한입니다.");
+            throw new NotFoundAuthorizedException(ErrorMessage.NOT_FOUND_AUTHORIZED);
         }
 
         // Enum 권한명이 맞다면 변경

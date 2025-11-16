@@ -1,5 +1,8 @@
 package com.example.schedule.service;
 
+import com.example.common.exception.ErrorMessage;
+import com.example.common.exception.NotFoundScheduleException;
+import com.example.common.exception.NotFoundUserException;
 import com.example.schedule.dto.*;
 import com.example.schedule.entity.Schedule;
 import com.example.schedule.repository.ScheduleRepository;
@@ -27,7 +30,7 @@ public class ScheduleService {
     public CreateScheduleResponse save(CreateScheduleRequest createScheduleRequest) {
         // 유저가 존재하는지 확인
         User user = userRepository.findById(createScheduleRequest.getUserId()).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 유저입니다.")
+                () -> new NotFoundUserException(ErrorMessage.NOT_FOUND_USER)
         );
 
         Schedule schedule = new Schedule(
@@ -53,7 +56,7 @@ public class ScheduleService {
     @Transactional(readOnly = true)
     public ReadOneScheduleResponse readOneSchedule(Long scheduleId) {
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 일정입니다.")
+                () -> new NotFoundScheduleException(ErrorMessage.NOT_FOUND_SCHEDULE)
         );
 
         // 본인건만 조회 가능 + 관리자
@@ -97,7 +100,7 @@ public class ScheduleService {
     public UpdateScheduleResponse updateSchedule(Long scheduleId, UpdateScheduleRequest updateScheduleRequest) {
         // 일정 존재 확인
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 일정입니다.")
+                () -> new NotFoundScheduleException(ErrorMessage.NOT_FOUND_SCHEDULE)
         );
 
         //  본인 일정만 수정 및 중간관리자 이상은 전부 수정 가능
@@ -122,7 +125,7 @@ public class ScheduleService {
     public void deleteSchedule(Long scheduleId) {
         // 일정 존재 확인
         if(!scheduleRepository.existsById(scheduleId)) {
-            throw new IllegalArgumentException("존재하지 않는 일정입니다.");
+            throw new NotFoundScheduleException(ErrorMessage.NOT_FOUND_SCHEDULE);
         }
 
         // 로그인시 삭제 가능, 일반유저 본인건만 삭제 가능, 중간관리자 이상은 전부 삭제 가능

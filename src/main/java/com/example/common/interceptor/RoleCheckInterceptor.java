@@ -1,6 +1,9 @@
 package com.example.common.interceptor;
 
 import com.example.common.annotation.RoleRequired;
+import com.example.common.exception.ErrorMessage;
+import com.example.common.exception.NeedToLoginException;
+import com.example.common.exception.RejectAuthorizedException;
 import com.example.user.dto.SessionUser;
 import com.example.user.entity.User;
 import com.example.user.entity.UserRole;
@@ -57,9 +60,8 @@ public class RoleCheckInterceptor implements HandlerInterceptor {
         // Filter에서 로그인 체크하고 세션이 이미 존재함.
         // 방어적으로 세션 다시한번 더 체크
         if (session == null || session.getAttribute("loginUser") == null) {
-            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED,
-                    "UNAUTHORIZED", "로그인이 필요합니다.");
-            return false;
+
+            throw new NeedToLoginException(ErrorMessage.NEED_TO_LOGIN);
         }
 
         // 세션 DTO로 직렬화
@@ -75,11 +77,8 @@ public class RoleCheckInterceptor implements HandlerInterceptor {
                     loginUser.getUserId(), userRole, Arrays.toString(requiredRoles),
                     request.getRequestURI());
 
-            sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN,
-                    "FORBIDDEN",
-                    String.format("해당 기능을 사용할 권한이 없습니다. 필요 권한: %s",
-                            Arrays.toString(requiredRoles)));
-            return false;
+            throw new RejectAuthorizedException(ErrorMessage.REJECT_AUTHORIZED);
+
         }
 
         // 필요한 권한이 맞다면 controller 진행
@@ -88,24 +87,5 @@ public class RoleCheckInterceptor implements HandlerInterceptor {
                 request.getRequestURI());
 
         return true;
-    }
-
-
-    /**
-     * 에러 응답 전송
-     */
-    private void sendErrorResponse(HttpServletResponse response,
-                                   int status,
-                                   String code,
-                                   String message) throws IOException {
-        response.setStatus(status);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-
-        Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("code", code);
-        errorResponse.put("message", message);
-
-        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }

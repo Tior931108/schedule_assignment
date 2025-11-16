@@ -1,5 +1,7 @@
 package com.example.common.filter;
 
+import com.example.common.exception.ErrorMessage;
+import com.example.common.exception.NeedToLoginException;
 import com.example.user.dto.SessionUser;
 import com.example.user.entity.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,8 +54,9 @@ public class LoginCheckFilter implements Filter {
                     // 401 에러 응답
                     sendErrorResponse(httpServletResponse,
                             HttpServletResponse.SC_UNAUTHORIZED,
-                            "UNAUTHORIZED",
+                            "NEED_TO_LOGIN",
                             "로그인이 필요합니다.");
+//                    throw new NeedToLoginException(ErrorMessage.NEED_TO_LOGIN);
 
                     // 다음 필터나 서블릿으로 진행하지 않음
                     return;
@@ -83,6 +86,9 @@ public class LoginCheckFilter implements Filter {
 
     /**
      * 에러 응답 전송
+     *
+     * filter의 경우, Spring Context 범위 바깥의 Web Context 영역이라서 전역에러 어노테이션의 범위 밖임
+     * 따로 에러응답을 만들어야함.
      */
     private void sendErrorResponse(HttpServletResponse response,
                                    int status,
@@ -90,11 +96,14 @@ public class LoginCheckFilter implements Filter {
                                    String message) throws IOException {
 
         response.setStatus(status);
+        // Spring 컨텍스트 @ExceptionHandler의 경우 리턴할때 JSON 객체로 자동응답해주지만,
+        // filter 응답의 경우 아래 JSON 타입 및 UTF-8 한글 변환설정해주어야함.
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        Map<String, String> errorResponse = new HashMap<>();
+        Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("code", code);
+        errorResponse.put("status", response.getStatus());
         errorResponse.put("message", message);
 
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
