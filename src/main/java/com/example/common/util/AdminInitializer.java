@@ -1,6 +1,5 @@
 package com.example.common.util;
 
-import com.example.common.config.PasswordEncoder;
 import com.example.user.entity.User;
 import com.example.user.entity.UserRole;
 import com.example.user.repository.UserRepository;

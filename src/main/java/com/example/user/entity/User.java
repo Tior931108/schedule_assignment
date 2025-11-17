@@ -1,11 +1,9 @@
 package com.example.user.entity;
 
-import com.example.common.config.PasswordEncoder;
+import com.example.common.util.PasswordEncoder;
 import com.example.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Entity
