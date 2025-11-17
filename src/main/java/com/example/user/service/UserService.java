@@ -1,6 +1,6 @@
 package com.example.user.service;
 
-import com.example.common.config.PasswordEncoder;
+import com.example.common.util.PasswordEncoder;
 import com.example.common.exception.*;
 import com.example.common.util.AccessValidator;
 import com.example.user.dto.*;
@@ -8,12 +8,14 @@ import com.example.user.entity.User;
 import com.example.user.entity.UserRole;
 import com.example.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -203,15 +205,15 @@ public class UserService {
         );
 
         // 입력된 권한이 USER, MANAGER, ADMIN중에 있는지 확인
-        UserRole userRole = updateUserRoleRequest.getRole();
-        // JSON RequestBody에 권한명을 클라이언트로부터 잘못 입력 받으면 Enum은 null 처리를 함.
-        // String 타입 null은 NullPointerException이 발생하지만, Enum 타입 null처리로 원하는 예외처리 구현 가능!
-        if(userRole == null) {
+        UserRole userRole = updateUserRoleRequest.getUserRole();
+        log.info("userRole : {}", userRole.name());
+
+        if(!(userRole.name().equals("USER") || userRole.name().equals("MANAGER") ||  userRole.name().equals("ADMIN")) ) {
             throw new NotFoundAuthorizedException(ErrorMessage.NOT_FOUND_AUTHORIZED);
         }
 
         // Enum 권한명이 맞다면 변경
-        user.updateRole(updateUserRoleRequest.getRole());
+        user.updateRole(updateUserRoleRequest.getUserRole());
 
 
         // 수정일자 명시적 flush 선언

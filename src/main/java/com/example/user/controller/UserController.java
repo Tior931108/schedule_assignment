@@ -6,6 +6,7 @@ import com.example.common.annotation.RoleRequired;
 import com.example.user.dto.*;
 import com.example.user.entity.UserRole;
 import com.example.user.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class UserController {
     // 유저 생성 (회원가입)
     @PostMapping("/auth/register")
     public ResponseEntity<CreateUserResponse> createUser (
-            @RequestBody CreateUserRequest createUserRequest) {
+           @Valid @RequestBody CreateUserRequest createUserRequest) {
         CreateUserResponse result = userService.register(createUserRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
@@ -52,7 +53,7 @@ public class UserController {
     @PatchMapping("/users/{userId}")
     public ResponseEntity<UpdateUserResponse> updateUser (
             @PathVariable Long userId,
-            @RequestBody UpdateUserRequest updateUserRequest,
+            @Valid @RequestBody UpdateUserRequest updateUserRequest,
             @LoginUser SessionUser sessionUser) {
         UpdateUserResponse result = userService.updateUser(userId, updateUserRequest, sessionUser);
         return ResponseEntity.status(HttpStatus.OK).body(result);
@@ -64,7 +65,7 @@ public class UserController {
     @PatchMapping("/users/{userId}/role")
     public ResponseEntity<UpdateUserRoleResponse> updateUserRole (
             @PathVariable Long userId,
-            @RequestBody UpdateUserRoleRequest updateUserRoleRequest) {
+            @RequestBody @Valid UpdateUserRoleRequest updateUserRoleRequest) {
         UpdateUserRoleResponse result = userService.updateUserRole(userId, updateUserRoleRequest);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
