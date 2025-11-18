@@ -70,7 +70,7 @@ public class GlobalExceptionHandler {
         errorResponse.put("message", "서버 내부 오류가 발생했습니다.");
 
         // 개발에서 상세 에러 표시
-        // errorResponse.put("details", e.getMessage());
+        errorResponse.put("details", e.getMessage());
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
