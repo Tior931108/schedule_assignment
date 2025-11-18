@@ -63,8 +63,8 @@ public class LoginCheckFilter implements Filter {
                 }
 
                 SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
-                log.info("인증된 사용자: userId={}, email={}, role={}",
-                        loginUser.getUserId(), loginUser.getEmail(), loginUser.getRole());
+                log.info("인증된 사용자: userId={}, role={}",
+                        loginUser.getUserId(), loginUser.getRole());
             }
 
             // 다음 필터 또는 서블릿으로 진행

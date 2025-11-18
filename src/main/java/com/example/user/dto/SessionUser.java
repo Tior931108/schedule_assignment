@@ -16,15 +16,11 @@ public class SessionUser implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long userId;
-    private String email;
-    private String nickname;
     private UserRole role;
 
     // User 엔티티로부터 생성
     public SessionUser(User user) {
         this.userId = user.getId();
-        this.email = user.getEmail();
-        this.nickname = user.getNickname();
         this.role = user.getRole();
     }
 
