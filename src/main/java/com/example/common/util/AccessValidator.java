@@ -1,17 +1,20 @@
 package com.example.common.util;
 
 import com.example.common.exception.ErrorMessage;
+import com.example.common.exception.OnlyOwnerAccessException;
 import com.example.common.exception.RejectAuthorizedException;
 import com.example.user.entity.UserRole;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+// 서비스에서 본인 정보만 접근할 수 있도록함.
+// URL 파라미터를 임의로 조작해서 다른 사람의 데이터에 접근하는 것 : IDOR (Insecure Direct Object Reference) 취약점 방지
 @Slf4j
 @Component
 public class AccessValidator {
 
     /**
-     * 일정 접근 권한 검증
+     * 일정,유저,댓글 접근 권한 검증
      */
     public void validateScheduleAccess(Long ownerId, Long userId, UserRole userRole, String action) {
         validateAccess(ownerId, userId, userRole, action, "일정");
@@ -19,6 +22,10 @@ public class AccessValidator {
 
     public void validateUserAccess(Long ownerId, Long userId, UserRole userRole, String action) {
         validateAccess(ownerId, userId, userRole, action, "유저");
+    }
+
+    public void validateCommentAccess(Long ownerId, Long userId, UserRole userRole, String action) {
+        validateAccess(ownerId, userId, userRole, action, "댓글");
     }
 
     /**
@@ -39,7 +46,7 @@ public class AccessValidator {
 
         // 권한 없음 _ 관리자는 대부분 통과이기에 본인정보만 접근 가능한걸로 안내
         logDenied(action, ownerId, userId, userRole, resourceType);
-        throw new RejectAuthorizedException(ErrorMessage.ONLY_OWNER_ACCESS);
+        throw new OnlyOwnerAccessException(ErrorMessage.ONLY_OWNER_ACCESS);
     }
 
     /**
