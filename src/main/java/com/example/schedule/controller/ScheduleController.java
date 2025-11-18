@@ -10,11 +10,14 @@ import com.example.user.entity.UserRole;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,13 +47,26 @@ public class ScheduleController {
     // 중간관리자, 최고관리자만 조회 가능
     @RoleRequired({UserRole.MANAGER, UserRole.ADMIN})
     @GetMapping("/schedules")
-    public ResponseEntity<List<ReadAllScheduleResponse>> readAllSchedule(
+    public ResponseEntity<Map<String, Object>> readAllSchedule(
             @RequestParam(required = false) String nickname,
             // 페이징 처리를 위한 RequestParam (page : 페이지 번호, size : 한 페이지당 최대로 보이는 일정 갯수)
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
-        List<ReadAllScheduleResponse> results = scheduleService.readAllSchedule(nickname, page, size);
-        return ResponseEntity.status(HttpStatus.OK).body(results);
+
+        Page<ReadAllScheduleResponse> schedulePage = scheduleService.readAllSchedule(nickname, page, size);
+
+        // 응답 데이터 구성
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", schedulePage.getContent());           // 일정 목록
+        response.put("currentPage", schedulePage.getNumber());        // 현재 페이지 (0부터 시작)
+        response.put("totalPages", schedulePage.getTotalPages());     // 전체 페이지 수
+        response.put("totalElements", schedulePage.getTotalElements()); // 전체 데이터 수
+        response.put("size", schedulePage.getSize());                 // 페이지 크기
+        response.put("first", schedulePage.isFirst());                // 첫 페이지 여부
+        response.put("last", schedulePage.isLast());                  // 마지막 페이지 여부
+        response.put("empty", schedulePage.isEmpty());                // 빈 페이지 여부
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     // 일정 수정

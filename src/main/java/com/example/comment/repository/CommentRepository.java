@@ -20,7 +20,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByScheduleId(Long scheduleId);
 
     // scheduleId로 댓글 목록 조회 (정렬 포함)
-    List<Comment> findByScheduleIdOrderByModifiedAtDesc(Long scheduleId);
+    List<Comment> findByScheduleIdOrderByCreatedAtAsc(Long scheduleId);
 
     // scheduleId로 댓글 개수 조회
     @Query("SELECT COUNT(c) FROM Comment c WHERE c.scheduleId = :scheduleId")

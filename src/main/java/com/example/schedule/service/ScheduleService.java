@@ -13,6 +13,9 @@ import com.example.user.entity.UserRole;
 import com.example.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,7 +82,7 @@ public class ScheduleService {
         );
 
         // 댓글 목록 조회 (Stream 활용)
-        List<ReadOneCommentResponse> comments = commentRepository.findByScheduleIdOrderByModifiedAtDesc(scheduleId)
+        List<ReadOneCommentResponse> comments = commentRepository.findByScheduleIdOrderByCreatedAtAsc(scheduleId)
                 .stream()
                 .map(ReadOneCommentResponse::from)
                 .toList();
@@ -92,32 +95,26 @@ public class ScheduleService {
 
     // 일정 전체 조회
     @Transactional(readOnly = true)
-    public List<ReadAllScheduleResponse> readAllSchedule(String nickname, Integer page, Integer size) {
-        List<Schedule> schedules;
+    public Page<ReadAllScheduleResponse> readAllSchedule(String nickname, Integer page, Integer size) {
+        // 기본값 설정
+        int pageNumber = (page != null && page >= 0) ? page : 0;
+        int pageSize = (size != null && size > 0) ? size : 10;
+
+        // Pageable 생성 (페이지 번호 1부터 시작)
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        Page<Object[]> results;
 
         if (nickname != null && !nickname.isEmpty()) {
-            // 닉네임명으로 필터링 (User_Nickname : 연관관계 엔티티 필드를 참조하는 JPA 표준 방식!)
-            schedules = scheduleRepository.findByUser_NicknameOrderByModifiedAtDesc(nickname);
+            // 닉네임명으로 필터링
+            results = scheduleRepository.findSchedulesByNicknameWithCommentCount(nickname, pageable);
         } else {
             // 전체 조회
-            schedules = scheduleRepository.findAllByOrderByModifiedAtDesc();
+            results = scheduleRepository.findAllSchedulesWithCommentCount(pageable);
         }
 
-        // 응답 반환
-        List<ReadAllScheduleResponse> dtos = new ArrayList<>();
-        for (Schedule schedule : schedules) {
-            ReadAllScheduleResponse dto = new ReadAllScheduleResponse(
-                    schedule.getId(),
-                    schedule.getUser().getId(),
-                    schedule.getUser().getNickname(),
-                    schedule.getTitle(),
-                    schedule.getContent(),
-                    schedule.getCreatedAt(),
-                    schedule.getModifiedAt()
-            );
-            dtos.add(dto);
-        }
-        return dtos;
+        // object[]를 DTO로 변환
+        return results.map(ReadAllScheduleResponse::convertToDto);
     }
 
     // 일정 수정
