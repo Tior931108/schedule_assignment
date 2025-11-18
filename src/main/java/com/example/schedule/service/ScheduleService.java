@@ -1,9 +1,8 @@
 package com.example.schedule.service;
 
-import com.example.common.exception.ErrorMessage;
-import com.example.common.exception.NotFoundScheduleException;
-import com.example.common.exception.NotFoundUserException;
-import com.example.common.exception.RejectAuthorizedException;
+import com.example.comment.dto.ReadOneCommentResponse;
+import com.example.comment.repository.CommentRepository;
+import com.example.common.exception.*;
 import com.example.common.util.AccessValidator;
 import com.example.schedule.dto.*;
 import com.example.schedule.entity.Schedule;
@@ -19,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -27,15 +28,21 @@ public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
     private final AccessValidator accessValidator;
 
     // 일정 저장
     @Transactional
-    public CreateScheduleResponse save(CreateScheduleRequest createScheduleRequest) {
+    public CreateScheduleResponse save(CreateScheduleRequest createScheduleRequest, SessionUser sessionUser) {
         // 유저가 존재하는지 확인
         User user = userRepository.findById(createScheduleRequest.getUserId()).orElseThrow(
                 () -> new NotFoundUserException(ErrorMessage.NOT_FOUND_USER)
         );
+
+        // request 유저 ID와 세션 유저 ID가 다른 경우 예외처리
+        if(!Objects.equals(createScheduleRequest.getUserId(), sessionUser.getUserId())) {
+            throw new OnlyOwnerAccessException(ErrorMessage.ONLY_OWNER_ACCESS);
+        }
 
         Schedule schedule = new Schedule(
                 createScheduleRequest.getTitle(),
@@ -71,8 +78,16 @@ public class ScheduleService {
                 "조회"
         );
 
-        // 단 건 조회 응답 (추후 댓글 포함여부 수정)
-        return ReadOneScheduleResponse.from(schedule);
+        // 댓글 목록 조회 (Stream 활용)
+        List<ReadOneCommentResponse> comments = commentRepository.findByScheduleIdOrderByModifiedAtDesc(scheduleId)
+                .stream()
+                .map(ReadOneCommentResponse::from)
+                .toList();
+
+        log.info("일정 조회: scheduleId={}, commentCount={}", scheduleId, comments.size());
+
+        // 단 건 일정 조회 및 관련 댓글 함께 응답
+        return ReadOneScheduleResponse.of(schedule, comments);
     }
 
     // 일정 전체 조회
