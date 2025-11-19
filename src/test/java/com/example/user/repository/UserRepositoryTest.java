@@ -30,12 +30,12 @@ class UserRepositoryTest {
     void saveUser() {
         // given
         // 또는 빌더 사용
-         User user = User.builder()
-                 .email("aaa@example.com")
-                 .password("1234")
-                 .nickname("홍길동")
-                 .role(USER)
-                 .build();
+        User user = User.builder()
+                .email("aaa@example.com")
+                .password("1234")
+                .nickname("홍길동")
+                .role(USER)
+                .build();
 
         // when
         User savedUser = userRepository.save(user);

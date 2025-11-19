@@ -22,15 +22,15 @@ public class UserController {
 
     // 유저 생성 (회원가입)
     @PostMapping("/auth/register")
-    public ResponseEntity<CreateUserResponse> createUser (
-           @Valid @RequestBody CreateUserRequest createUserRequest) {
+    public ResponseEntity<CreateUserResponse> createUser(
+            @Valid @RequestBody CreateUserRequest createUserRequest) {
         CreateUserResponse result = userService.register(createUserRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     // 유저 단건 조회
     @GetMapping("/users/{userId}")
-    public ResponseEntity<ReadOneUserResponse> ReadOneUser (
+    public ResponseEntity<ReadOneUserResponse> ReadOneUser(
             @PathVariable Long userId,
             @LoginUser SessionUser sessionUser) {
         ReadOneUserResponse result = userService.readOneUser(userId, sessionUser);
@@ -41,7 +41,7 @@ public class UserController {
     // 중간관리자 이상만 유저 전체 조회 가능
     @RoleRequired({UserRole.MANAGER, UserRole.ADMIN})
     @GetMapping("/users")
-    public ResponseEntity<List<ReadAllUsersResponse>> ReadAllUsers (
+    public ResponseEntity<List<ReadAllUsersResponse>> ReadAllUsers(
             // 페이징 처리를 위한 RequestParam (page : 페이지 번호, size : 한 페이지당 최대로 보이는 유저 수)
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
@@ -51,7 +51,7 @@ public class UserController {
 
     // 유저 정보 수정
     @PatchMapping("/users/{userId}")
-    public ResponseEntity<UpdateUserResponse> updateUser (
+    public ResponseEntity<UpdateUserResponse> updateUser(
             @PathVariable Long userId,
             @Valid @RequestBody UpdateUserRequest updateUserRequest,
             @LoginUser SessionUser sessionUser) {
@@ -63,7 +63,7 @@ public class UserController {
     // 최고 관리자만 유저 권한 수정 가능
     @RoleRequired({UserRole.ADMIN})
     @PatchMapping("/users/{userId}/role")
-    public ResponseEntity<UpdateUserRoleResponse> updateUserRole (
+    public ResponseEntity<UpdateUserRoleResponse> updateUserRole(
             @PathVariable Long userId,
             @RequestBody @Valid UpdateUserRoleRequest updateUserRoleRequest) {
         UpdateUserRoleResponse result = userService.updateUserRole(userId, updateUserRoleRequest);
@@ -72,7 +72,7 @@ public class UserController {
 
     // 유저 삭제 (회원 탈퇴)
     @DeleteMapping("/users/{userId}")
-    public ResponseEntity<Void> deleteUser (
+    public ResponseEntity<Void> deleteUser(
             @PathVariable Long userId,
             @LoginUser SessionUser sessionUser) {
         userService.deleteUser(userId, sessionUser);

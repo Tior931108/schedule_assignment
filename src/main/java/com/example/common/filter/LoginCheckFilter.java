@@ -41,14 +41,14 @@ public class LoginCheckFilter implements Filter {
 
         String requestURI = httpServletRequest.getRequestURI();
 
-        try{
+        try {
             // 화이트 리스트 체크
-            if(isLoginCheckPath(requestURI)) {
+            if (isLoginCheckPath(requestURI)) {
 
                 HttpSession session = httpServletRequest.getSession();
 
                 // 세션이 없거나 로그인 정보가 없는 경우
-                if(session == null || session.getAttribute("loginUser") == null) {
+                if (session == null || session.getAttribute("loginUser") == null) {
                     log.warn("미인증 사용자 요청: {}", requestURI);
 
                     // 401 에러 응답
@@ -86,7 +86,7 @@ public class LoginCheckFilter implements Filter {
 
     /**
      * 에러 응답 전송
-     *
+     * <p>
      * filter의 경우, Spring Context 범위 바깥의 Web Context 영역이라서 전역에러 어노테이션의 범위 밖임
      * 따로 에러응답을 만들어야함.
      */

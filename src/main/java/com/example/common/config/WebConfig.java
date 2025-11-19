@@ -12,7 +12,7 @@ import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
-public class WebConfig implements WebMvcConfigurer{
+public class WebConfig implements WebMvcConfigurer {
 
     private final RoleCheckInterceptor roleCheckInterceptor;
     private final LoginUserArgumentResolver loginUserArgumentResolver;

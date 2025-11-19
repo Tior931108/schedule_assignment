@@ -3,6 +3,7 @@ package com.example.user.service;
 import com.example.common.util.PasswordEncoder;
 import com.example.common.exception.*;
 import com.example.common.util.AccessValidator;
+import com.example.schedule.entity.Schedule;
 import com.example.user.dto.*;
 import com.example.user.entity.User;
 import com.example.user.entity.UserRole;
@@ -48,7 +49,7 @@ public class UserService {
             throw new ExistEmailException(ErrorMessage.EXIST_EMAIL);
         }
         // 닉네임 중복 체크
-        if(userRepository.existsByNickname(createUserRequest.getNickname())) {
+        if (userRepository.existsByNickname(createUserRequest.getNickname())) {
             throw new ExistNicknameException(ErrorMessage.EXIST_NICKNAME);
         }
 
@@ -80,9 +81,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public ReadOneUserResponse readOneUser(Long userId, SessionUser sessionUser) {
         // 가입된 유저인지 확인
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new NotFoundUserException(ErrorMessage.NOT_FOUND_USER)
-        );
+        User user = getUser(userId);
 
         // 본인것만 조회 가능 + 관리자
         accessValidator.validateUserAccess(
@@ -105,8 +104,6 @@ public class UserService {
     // 유저 전체 조회
     @Transactional(readOnly = true)
     public List<ReadAllUsersResponse> findAll(Integer page, Integer size) {
-        // 로그인 상태 확인 및, 중간관리자 이상만 유저 전체 조회 가능
-
         // 유저 전체 조회
         List<User> users = userRepository.findAll();
 
@@ -130,9 +127,7 @@ public class UserService {
     @Transactional
     public UpdateUserResponse updateUser(Long userId, UpdateUserRequest updateUserRequest, SessionUser sessionUser) {
         // 가입된 유저인지 확인
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new NotFoundUserException(ErrorMessage.NOT_FOUND_USER)
-        );
+        User user = getUser(userId);
 
         // 본인 정보만 수정 가능 + 관리자
         accessValidator.validateUserAccess(
@@ -180,9 +175,7 @@ public class UserService {
     @Transactional
     public void deleteUser(Long userId, SessionUser sessionUser) {
         // 가입된 유저인지 확인
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new NotFoundUserException(ErrorMessage.NOT_FOUND_USER)
-        );
+        User user = getUser(userId);
 
         // 본인 정보만 삭제 가능 + 관리자
         accessValidator.validateUserAccess(
@@ -200,15 +193,13 @@ public class UserService {
     @Transactional
     public UpdateUserRoleResponse updateUserRole(Long userId, UpdateUserRoleRequest updateUserRoleRequest) {
         // 가입된 유저인지 확인
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new NotFoundUserException(ErrorMessage.NOT_FOUND_USER)
-        );
+        User user = getUser(userId);
 
         // 입력된 권한이 USER, MANAGER, ADMIN중에 있는지 확인
         UserRole userRole = updateUserRoleRequest.getUserRole();
         log.info("userRole : {}", userRole.name());
 
-        if(!(userRole.name().equals("USER") || userRole.name().equals("MANAGER") ||  userRole.name().equals("ADMIN")) ) {
+        if (!(userRole.name().equals("USER") || userRole.name().equals("MANAGER") || userRole.name().equals("ADMIN"))) {
             throw new NotFoundAuthorizedException(ErrorMessage.NOT_FOUND_AUTHORIZED);
         }
 
@@ -228,4 +219,12 @@ public class UserService {
                 user.getModifiedAt()
         );
     }
+
+    // 가입된 유저인지 확인
+    public User getUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new NotFoundUserException(ErrorMessage.NOT_FOUND_USER)
+        );
+    }
+
 }

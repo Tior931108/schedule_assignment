@@ -33,7 +33,7 @@ public class RoleCheckInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
         // Handler가 메서드가 아니면 통과
-        if(!(handler instanceof HandlerMethod)){
+        if (!(handler instanceof HandlerMethod)) {
             return true;
         }
 
@@ -43,7 +43,7 @@ public class RoleCheckInterceptor implements HandlerInterceptor {
         RoleRequired roleRequired = handlerMethod.getMethod().getAnnotation(RoleRequired.class);
 
         // 어노테이션이 없으면 통과
-        if(roleRequired == null){
+        if (roleRequired == null) {
             return true;
         }
 

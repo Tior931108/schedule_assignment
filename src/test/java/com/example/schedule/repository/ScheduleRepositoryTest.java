@@ -33,7 +33,7 @@ class ScheduleRepositoryTest {
         User user = new User("aaa@example.com", "1234", "홍길동");
         userRepository.save(user);
 
-        Schedule schedule = new Schedule("테스트제목","테스트 내용", user);
+        Schedule schedule = new Schedule("테스트제목", "테스트 내용", user);
         scheduleRepository.save(schedule);
 
         // when

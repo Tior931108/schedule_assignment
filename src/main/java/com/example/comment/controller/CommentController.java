@@ -27,7 +27,7 @@ public class CommentController {
             @PathVariable("scheduleId") Long scheduleId,
             @RequestBody CreateCommentRequest createCommentRequest,
             @LoginUser SessionUser sessionUser) {
-        CreateCommentResponse result = commentService.save(scheduleId,createCommentRequest, sessionUser);
+        CreateCommentResponse result = commentService.save(scheduleId, createCommentRequest, sessionUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
@@ -45,11 +45,8 @@ public class CommentController {
     @RoleRequired({UserRole.MANAGER, UserRole.ADMIN})
     @GetMapping("/comments")
     public ResponseEntity<List<ReadAllCommentsResponse>> readAllComments(
-            @RequestParam(required = false) String nickname,
-            // 페이징 처리를 위한 RequestParam (page : 페이지 번호, size : 한 페이지당 최대로 보이는 일정 갯수)
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
-        List<ReadAllCommentsResponse> results = commentService.readAllComments(nickname, page, size);
+            @RequestParam(required = false) String nickname) {
+        List<ReadAllCommentsResponse> results = commentService.readAllComments(nickname);
         return ResponseEntity.status(HttpStatus.OK).body(results);
     }
 

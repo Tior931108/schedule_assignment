@@ -17,7 +17,7 @@ public class EnumValidatorImpl implements ConstraintValidator<EnumValidator, Str
         if (value == null || value.trim().isEmpty()) {
             return true;
         }
-        // 대소문자 구분 없이 비교
+        // 대소문자 구분 없이 Enum 상수를 비교
         return valueSet.contains(value.toUpperCase());
     }
 
@@ -29,6 +29,7 @@ public class EnumValidatorImpl implements ConstraintValidator<EnumValidator, Str
         // Enum 상수들을 Set에 추가
         Enum<?>[] enumConstants = enumClass.getEnumConstants();
 
+        // 어노테이션이 지정한 Enum 클래스에서 모든 멤버 이름을 추출
         if (enumConstants != null) {
             for (Enum<?> enumConstant : enumConstants) {
                 valueSet.add(enumConstant.name().toUpperCase());

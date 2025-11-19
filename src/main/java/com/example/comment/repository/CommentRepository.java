@@ -12,6 +12,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // 유저 닉네임으로 댓글 조회
     List<Comment> findByUser_NicknameOrderByModifiedAtDesc(String nickname);
+
     // 댓글 전체 조회
     List<Comment> findAllByOrderByModifiedAtDesc();
 

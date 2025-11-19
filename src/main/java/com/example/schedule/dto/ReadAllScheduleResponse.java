@@ -20,7 +20,7 @@ public class ReadAllScheduleResponse {
     private String nickname;         // 일정 작성 유저명
 
 
-     // Object[] → ReadAllScheduleResponse 변환
+    // Object[] → ReadAllScheduleResponse 변환
     public static ReadAllScheduleResponse convertToDto(Object[] result) {
         return new ReadAllScheduleResponse(
                 (Long) result[0],           // scheduleId

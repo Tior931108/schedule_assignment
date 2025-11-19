@@ -43,7 +43,7 @@ public class ScheduleService {
         );
 
         // request 유저 ID와 세션 유저 ID가 다른 경우 예외처리
-        if(!Objects.equals(createScheduleRequest.getUserId(), sessionUser.getUserId())) {
+        if (!Objects.equals(createScheduleRequest.getUserId(), sessionUser.getUserId())) {
             throw new OnlyOwnerAccessException(ErrorMessage.ONLY_OWNER_ACCESS);
         }
 
@@ -68,10 +68,8 @@ public class ScheduleService {
 
     // 일정 단건 조회
     @Transactional(readOnly = true)
-    public ReadOneScheduleResponse readOneSchedule(Long scheduleId , SessionUser sessionUser) {
-        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
-                () -> new NotFoundScheduleException(ErrorMessage.NOT_FOUND_SCHEDULE)
-        );
+    public ReadOneScheduleResponse readOneSchedule(Long scheduleId, SessionUser sessionUser) {
+        Schedule schedule = getSchedule(scheduleId);
 
         // 본인건만 조회 가능 + 관리자
         accessValidator.validateScheduleAccess(
@@ -100,7 +98,7 @@ public class ScheduleService {
         int pageNumber = (page != null && page >= 0) ? page : 0;
         int pageSize = (size != null && size > 0) ? size : 10;
 
-        // Pageable 생성 (페이지 번호 1부터 시작)
+        // Pageable 생성 (페이지 번호 0부터 시작)
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
         Page<Object[]> results;
@@ -121,9 +119,7 @@ public class ScheduleService {
     @Transactional
     public UpdateScheduleResponse updateSchedule(Long scheduleId, UpdateScheduleRequest updateScheduleRequest, SessionUser sessionUser) {
         // 일정 존재 확인
-        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
-                () -> new NotFoundScheduleException(ErrorMessage.NOT_FOUND_SCHEDULE)
-        );
+        Schedule schedule = getSchedule(scheduleId);
 
         //  본인 일정만 수정 및 중간관리자 이상은 전부 수정 가능
         accessValidator.validateScheduleAccess(
@@ -152,9 +148,7 @@ public class ScheduleService {
     @Transactional
     public void deleteSchedule(Long scheduleId, SessionUser sessionUser) {
         // 일정 존재 확인
-        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
-                () -> new NotFoundScheduleException(ErrorMessage.NOT_FOUND_SCHEDULE)
-        );
+        Schedule schedule = getSchedule(scheduleId);
 
         // 일반유저 본인건만 삭제 가능, 중간관리자 이상은 전부 삭제 가능
         accessValidator.validateScheduleAccess(
@@ -167,5 +161,12 @@ public class ScheduleService {
         // 삭제
         scheduleRepository.deleteById(scheduleId);
 
+    }
+
+    // 일정 존재 확인 메소드
+    public Schedule getSchedule(Long scheduleId) {
+        return scheduleRepository.findById(scheduleId).orElseThrow(
+                () -> new NotFoundScheduleException(ErrorMessage.NOT_FOUND_SCHEDULE)
+        );
     }
 }

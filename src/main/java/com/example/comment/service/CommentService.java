@@ -31,7 +31,7 @@ public class CommentService {
     // 댓글 생성
     @Transactional
     public CreateCommentResponse save(Long scheduleId, CreateCommentRequest createCommentRequest, SessionUser sessionUser) {
-        // 존재하는 일정인지 확인
+        // 일정이 있는지 확인
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
                 () -> new NotFoundScheduleException(ErrorMessage.NOT_FOUND_SCHEDULE)
         );
@@ -42,7 +42,7 @@ public class CommentService {
         );
 
         // request 유저 ID와 세션 유저 ID가 다른 경우 예외처리
-        if(!Objects.equals(createCommentRequest.getUserId(), sessionUser.getUserId())){
+        if (!Objects.equals(createCommentRequest.getUserId(), sessionUser.getUserId())) {
             throw new OnlyOwnerAccessException(ErrorMessage.ONLY_OWNER_ACCESS);
         }
 
@@ -69,9 +69,7 @@ public class CommentService {
     @Transactional(readOnly = true)
     public ReadOneCommentResponse readOneComment(Long scheduleId, Long commentId, SessionUser sessionUser) {
         // 존재하는 일정인지 확인
-        if(!scheduleRepository.existsById(scheduleId)) {
-            throw new NotFoundScheduleException(ErrorMessage.NOT_FOUND_SCHEDULE);
-        }
+        existsBySchedule(scheduleId);
 
         // 존재하는 댓글인지 확인
         Comment comment = commentRepository.findById(commentId).orElseThrow(
@@ -91,7 +89,7 @@ public class CommentService {
 
     // 댓글 전체 조회
     @Transactional(readOnly = true)
-    public List<ReadAllCommentsResponse> readAllComments(String nickname, Integer page, Integer size) {
+    public List<ReadAllCommentsResponse> readAllComments(String nickname) {
         List<Comment> comments;
 
         if (nickname != null && !nickname.isEmpty()) {
@@ -123,9 +121,7 @@ public class CommentService {
     @Transactional
     public UpdateCommentResponse updateComment(Long scheduleId, Long commentId, UpdateCommentRequest updateCommentRequest, SessionUser sessionUser) {
         // 존재하는 일정인지 확인
-        if(!scheduleRepository.existsById(scheduleId)) {
-            throw new NotFoundScheduleException(ErrorMessage.NOT_FOUND_SCHEDULE);
-        }
+        existsBySchedule(scheduleId);
 
         // 댓글 존재 확인
         Comment comment = commentRepository.findById(commentId).orElseThrow(
@@ -159,9 +155,7 @@ public class CommentService {
     @Transactional
     public void deleteComment(Long scheduleId, Long commentId, SessionUser sessionUser) {
         // 존재하는 일정인지 확인
-        if(!scheduleRepository.existsById(scheduleId)) {
-            throw new NotFoundScheduleException(ErrorMessage.NOT_FOUND_SCHEDULE);
-        }
+        existsBySchedule(scheduleId);
 
         // 댓글 존재 확인
         Comment comment = commentRepository.findById(commentId).orElseThrow(
@@ -179,5 +173,12 @@ public class CommentService {
         // 삭제
         commentRepository.delete(comment);
 
+    }
+
+    // 존재하는 일정인지 확인
+    public void existsBySchedule(Long scheduleId) {
+        if (!scheduleRepository.existsById(scheduleId)) {
+            throw new NotFoundScheduleException(ErrorMessage.NOT_FOUND_SCHEDULE);
+        }
     }
 }
