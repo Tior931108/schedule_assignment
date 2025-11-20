@@ -7,11 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-
-import java.time.LocalDateTime;
 
 import static com.example.user.entity.UserRole.USER;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,8 +27,8 @@ class UserRepositoryTest {
         // given
         // 또는 빌더 사용
         User user = User.builder()
-                .email("aaa@example.com")
-                .password("1234")
+                .email("abcd@example.com")
+                .password("password123")
                 .nickname("홍길동")
                 .role(USER)
                 .build();
@@ -48,7 +44,7 @@ class UserRepositoryTest {
     @DisplayName("이메일이 존재하는지 확인한다.")
     void existsByEmail() {
         // given
-        User users = new User("aaa@example.com", "1234", "홍길동");
+        User users = new User("abcd@example.com", "password123", "홍길동");
         userRepository.save(users);
 
         // when
@@ -62,7 +58,7 @@ class UserRepositoryTest {
     @DisplayName("닉네임이 존재하는지 확인한다.")
     void existsByNickname() {
         // given
-        User users = new User("aaa@example.com", "1234", "홍길동");
+        User users = new User("abcd@example.com", "password123", "홍길동");
         userRepository.save(users);
 
         // when

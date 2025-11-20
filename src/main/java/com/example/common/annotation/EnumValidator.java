@@ -22,4 +22,8 @@ public @interface EnumValidator {
 
     // 유효성 검증 실패시 기본 메시지
     String message() default "유효하지 않은 Enum 상수입니다.";
+
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
 }
