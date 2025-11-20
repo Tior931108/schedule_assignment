@@ -176,8 +176,7 @@ src/main/java/com/example
 - **util**: 유틸리티 클래스 (암호화, 검증, 초기화)
 
 #### 🔹 **schedule** - 일정 관리
-일정 CRUD 기능을 담당하는 핵심 도메인 레이어
-- 일정 전체 조회시 페이징 처리
+일정 CRUD 기능을 담당하는 핵심 도메인 레이어 : 일정 전체 조회시 페이징 처리
 
 #### 🔹 **user** - 사용자 관리
 사용자 인증/인가 및 사용자 정보 관리를 담당하는 도메인 레이어
@@ -239,5 +238,5 @@ https://documenter.getpostman.com/view/49691093/2sB3WyJwNK
 
 ## 👤 작성자
 
-Tior931108 Ch.3 Spring 입문 주차 3조 꾸러기들 정용준
+Tior931108 Ch.3 Spring 숙련 주차 3조 꾸러기들 정용준
 
